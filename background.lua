@@ -1,18 +1,16 @@
-local CDWQPass = {} --So that
-
 local env = {
     CDWQ = {
         start = function(file)
-            coroutine.yield("CDWQ", "START", file)
+            return coroutine.yield("CDWQ", "START", file)
         end,
         save = function(file)
-            coroutine.yield("CDWQ", "SAVE", file)
+            return coroutine.yield("CDWQ", "SAVE", file)
         end,
         off = function()
-            coroutine.yield("CDWQ", "OFF")
+            return coroutine.yield("CDWQ", "OFF")
         end,
         unbind = function()
-            coroutine.yield("CDWQ", "UNBIND")
+            return coroutine.yield("CDWQ", "UNBIND")
         end
     }
 }
@@ -20,7 +18,32 @@ setmetatable(env, {__index = _G})
         
 local shell = coroutine.create(loadstring("rom/programs/shell", env))
 
-while true do
-    local yieldData = {coroutine.resume(shell)}
-    if yieldData[1] == "CDWQ
+local startData = false
+local sFuncts = {
+    START = function(file)
+        if file then
+            if not fs.exists(file) then return false end
+            local handle = fs.open(file, "r")
+            local readData = handle.readAll()
+            handle.close()
+            startData = textutils.unserialize(readData)
+        else
+            startData = {}
+        end
+        return true
+    end,
     
+
+local shellFilter = false
+local lastData = {}
+while true do
+    local yieldData = {coroutine.resume(shell, table.unpack(lastData))}
+    if yieldData[1] == "CDWQ" then
+        if sFuncts[yieldData[3]] then
+            lastData = {sFuncts[yieldData[3]]()}
+            table.insert("CDWQ_OK", 1)
+        else
+            lastData = {"CDWQ", "Invalid Function"}
+        end
+    else
+        shellFilter = yieldData[1]
