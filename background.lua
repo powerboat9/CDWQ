@@ -32,7 +32,9 @@ local sFuncts = {
         end
         return true
     end,
-    
+    SAVE = function(file)
+        if not file then return false end
+        
 
 local shellFilter = false
 local lastData = {}
