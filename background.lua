@@ -41,7 +41,7 @@ while true do
     if yieldData[1] == "CDWQ" then
         if sFuncts[yieldData[3]] then
             lastData = {sFuncts[yieldData[3]]()}
-            table.insert("CDWQ_OK", 1)
+            table.insert(lastData, 1, "CDWQ_OK")
         else
             lastData = {"CDWQ", "Invalid Function"}
         end
